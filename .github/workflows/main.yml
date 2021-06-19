@@ -25,7 +25,7 @@ jobs:
         run: ./gradlew deleteIlicache createIliModelsXml validateIliModelsXml versionTxt buildDockerImage startDockerContainer deleteIlicache checkInterlisRepository stopDockerContainer 
       - name: Push Docker Images
         run: |
-          docker images
+          docker images 
       - name: Push docker image
         run: ./gradlew pushDockerImages -i
         if: ${{ github.ref == 'refs/heads/main' }}  
