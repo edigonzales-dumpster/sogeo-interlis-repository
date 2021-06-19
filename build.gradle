@@ -86,7 +86,7 @@ task createDockerContainer(type: DockerCreateContainer) {
     description = "Create docker container."
     targetImageId buildDockerImage.getImageId()
     hostConfig.portBindings = ['8080:8080']
-    hostConfig.autoRemove = true
+    //hostConfig.autoRemove = true
     exposedPorts = [new ExposedPort("tcp", [8080])]    
 }
 
