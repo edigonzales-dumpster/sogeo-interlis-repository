@@ -28,4 +28,4 @@ jobs:
           docker images
       - name: Push docker image
         run: ./gradlew pushDockerImages -i
-        if: ${{ github.ref == 'refs/heads/master' }}  
+        if: ${{ github.ref == 'refs/heads/main' }}  
