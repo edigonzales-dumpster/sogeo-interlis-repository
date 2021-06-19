@@ -1,0 +1,137 @@
+buildscript {
+    repositories {
+        maven { url "http://jars.interlis.ch" }
+        maven { url "https://repo.osgeo.org/repository/release/" }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("ch.interlis:ili2c-tool:5.2.2")
+    }
+}
+
+plugins {
+    id "ch.so.agi.gretl" version "2.1.126"
+    id "ch.so.agi.interlis-repository-creator" version "1.2.9"
+    id "com.bmuschko.docker-remote-api" version "7.0.1"
+}
+
+apply from: "$rootDir/gradle/versioning.gradle"
+
+import ch.so.agi.gretl.tasks.*
+import ch.so.agi.gretl.api.*
+import ch.so.agi.tasks.InterlisRepositoryCreator
+import java.text.SimpleDateFormat
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer.ExposedPort
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+
+
+task deleteIlicache(type: Delete) {
+    delete new File(System.getProperty("user.home"),".ilicache").getAbsolutePath()
+}
+
+task createIliModelsXml(dependsOn: 'deleteIlicache', type: InterlisRepositoryCreator) {
+    description = "Create ilimodels.xml file."
+    modelsDir = file("models/")
+    dataFile = "ilimodels.xml"
+    modelRepo = "$projectDir/models/SIA/;http://models.interlis.ch/";
+    technicalContact = "mailto:foo@bar.ch"
+}
+
+task validateIliModelsXml(type: IliValidator) {
+    description = "Validate ilimodels.xml file."
+    dataFiles = ["ilimodels.xml"]
+    logFile = "ilivalidator.log"
+}
+
+task versionTxt()  {
+    description = "Create a version.txt file with some information about the build."
+    outputs.upToDateWhen { false }
+    doLast {
+        new File("$projectDir/version.txt").text = """
+Version: $version
+Revision: ${getCheckedOutGitCommitHash()}
+Buildtime: ${new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date())}
+Application-name: sogeo-interlis-repository
+"""
+    }
+}
+
+def getCheckedOutGitCommitHash() {
+    'git log -1 --pretty=%H'.execute().text.trim()
+}
+
+docker {
+    registryCredentials {
+        username = System.env.DOCKER_USERNAME
+        password = System.env.DOCKER_PASSWORD
+    }
+}
+
+task buildDockerImage(type: DockerBuildImage) {
+    description = "Build docker image."
+    inputDir = project.rootDir
+    images = ["edigonzales/sogeo-interlis-repository:"+version.toString(), "edigonzales/sogeo-interlis-repository:latest"]
+    labels = ["sogeo-interlis-repository.created": new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), 
+            "sogeo-interlis-repository.git_commit":  getCheckedOutGitCommitHash(), 
+            "sogeo-interlis-repository.travis_build": version.toString()]    
+}
+
+task createDockerContainer(type: DockerCreateContainer) {
+    description = "Create docker container."
+    targetImageId buildDockerImage.getImageId()
+    hostConfig.portBindings = ['8080:8080']
+    hostConfig.autoRemove = true
+    exposedPorts = [new ExposedPort("tcp", [8080])]    
+}
+
+task startDockerContainer(dependsOn: 'createDockerContainer', type: DockerStartContainer) {	
+    description = "Start docker container."
+    targetContainerId createDockerContainer.getContainerId()
+
+    // Starting container != web service is ready.
+    doLast { 
+        sleep(4*1000)
+    }
+}
+
+task stopDockerContainer(type: DockerStopContainer) {
+    description = "Stop running docker container."
+    targetContainerId createDockerContainer.getContainerId()
+}
+
+task pushDockerImages(type: DockerPushImage) {
+    description = "Push docker images to hub.docker.com."
+    images = ["edigonzales/sogeo-interlis-repository:"+version.toString(), "edigonzales/sogeo-interlis-repository:latest"]
+}
+
+task checkInterlisRepository(type: JavaExec) {
+    classpath = buildscript.configurations.classpath
+    main = 'ch.interlis.ili2c.Main'
+    args  "--check-repo-ilis", "http://localhost:8080", "--ilidirs", "%ILI_DIR;http://localhost:8080;http://models.interlis.ch/;http://models.geo.admin.ch"
+}
+
+//checkInterlisRepository.finalizedBy stopDockerContainer
+
+// This is how you can grap standard out or standard error.
+/*
+task checkInterlisRepository() {
+    description = "Checks the interlis repository (ili2c --check-repo-ilis)"    
+    doLast {
+        def os = new ByteArrayOutputStream()
+        javaexec {
+            classpath = buildscript.configurations.classpath
+            main = 'ch.interlis.ili2c.Main'
+            args  "--check-repo-ilis", "http://localhost"
+            //errorOutput = os
+            standardOutput = os
+        }
+        def buildString = os.toString()
+    }
+}
+*/

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<TRANSFER>
+  <HEADERSECTION SENDER="SOGIS-20160127" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="IliSite09" VERSION="2009-11-12" URI="mailto:ce@eisenhutinformatik.ch"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <IliSite09.SiteMetadata BID="FUBAR">
+      <IliSite09.SiteMetadata.Site TID="1">
+        <Name>models.sogeo.services</Name>
+        <Title>Model repository sogeo services</Title>
+        <shortDescription>Modellablage fuer INTERLIS-Datenmodelle</shortDescription>
+        <Owner>http://blog.sogeo.services</Owner>
+        <technicalContact>mailto:stefan.ziegler.de@gmail.com</technicalContact>
+        <furtherInformation>http://blog.sogeo.services</furtherInformation>
+        <!--
+        <parentSite>
+          <IliSite09.RepositoryLocation_>
+            <value>http://models.geo.kgk-cgc.ch/</value>
+          </IliSite09.RepositoryLocation_>
+          <IliSite09.RepositoryLocation_>
+            <value>http://models.geo.admin.ch/</value>
+          </IliSite09.RepositoryLocation_>
+        </parentSite>
+        -->
+      </IliSite09.SiteMetadata.Site>
+    </IliSite09.SiteMetadata>
+  </DATASECTION>
+</TRANSFER>
