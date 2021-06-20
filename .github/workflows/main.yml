@@ -41,8 +41,8 @@ jobs:
           ECR_REGISTRY: 465066823493.dkr.ecr.eu-central-1.amazonaws.com
           ECR_REPOSITORY: sogeo-interlis-repository
         run: |
-          docker image tag edigonzales/sogeo-interlis-repositry:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker image tag edigonzales/sogeo-interlis-repositry:$BUILD_NUMBER $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_NUMBER
+          docker image tag edigonzales/sogeo-interlis-repository:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker image tag edigonzales/sogeo-interlis-repository:$BUILD_NUMBER $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_NUMBER
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER"
