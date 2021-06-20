@@ -7,6 +7,7 @@ jobs:
     env:
       DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}} 
+      AWS_REGION: eu-central-1
       BUILD_NUMBER: ${{ github.run_number }}
     runs-on: ubuntu-latest
     steps:
@@ -23,9 +24,23 @@ jobs:
           java-version: 11
       - name: Build with Gradle
         run: ./gradlew deleteIlicache createIliModelsXml validateIliModelsXml versionTxt buildDockerImage startDockerContainer deleteIlicache checkInterlisRepository stopDockerContainer 
-      - name: Push Docker Images
+      - name: List Docker Images
         run: |
           docker images 
-      - name: Push docker image
+      - name: Push Docker Image to Docker Hub
         run: ./gradlew pushDockerImages -i
         if: ${{ github.ref == 'refs/heads/main' }}  
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Push Docker Image to Amazon ECR
+        env:
+          ECR_REGISTRY: 465066823493.dkr.ecr.eu-central-1.amazonaws.com
+          ECR_REPOSITORY: sogeo-interlis-repository
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER"
