@@ -30,6 +30,9 @@ jobs:
       - name: Push Docker Image to Docker Hub
         run: ./gradlew pushDockerImages -i
         if: ${{ github.ref == 'refs/heads/main' }}  
+      # TODO: Sollte ebenfalle mit Gradle gemacht werden.
+      # - zweites build File?
+      # - oder zumindest das Tagging
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -39,12 +42,9 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      # TODO: Sollte ebenfalle mit Gradle gemacht werden.
-      # - zweites build File?
-      # - oder zumindest das Tagging
       - name: Push Docker Image to Amazon ECR
         env:
-          ECR_REGISTRY: 465066823493.dkr.ecr.eu-central-1.amazonaws.com
+          ECR_REGISTRY: 465066823493.dkr.ecr.eu-west-1.amazonaws.com
           ECR_REPOSITORY: sogeo-interlis-repository
         run: |
           docker image tag edigonzales/sogeo-interlis-repository:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
@@ -52,3 +52,4 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER"
+        if: ${{ github.ref == 'refs/heads/main' }}  
