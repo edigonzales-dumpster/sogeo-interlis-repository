@@ -42,7 +42,7 @@ jobs:
           ECR_REPOSITORY: sogeo-interlis-repository
         run: |
           docker image tag edigonzales/sogeo-interlis-repository:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker image tag edigonzales/sogeo-interlis-repository:$BUILD_NUMBER $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_NUMBER
+          docker image tag edigonzales/sogeo-interlis-repository:1.0.$BUILD_NUMBER $ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER"
