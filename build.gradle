@@ -56,7 +56,7 @@ task versionTxt()  {
         new File("$projectDir/version.txt").text = """
 Version: $version
 Revision: ${getCheckedOutGitCommitHash()}
-Buildtime: ${new SimpleDateFormat("dd-MM-yyyy HH:mm:ssZ").format(new Date())}
+Buildtime: ${new SimpleDateFormat("dd-MM-yyyy HH:mm:ssz").format(new Date())}
 Application-name: sogeo-interlis-repository
 """
     }
