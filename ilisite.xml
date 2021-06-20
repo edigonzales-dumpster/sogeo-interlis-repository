@@ -14,16 +14,11 @@
         <Owner>http://blog.sogeo.services</Owner>
         <technicalContact>mailto:stefan.ziegler.de@gmail.com</technicalContact>
         <furtherInformation>http://blog.sogeo.services</furtherInformation>
-        <!--
         <parentSite>
           <IliSite09.RepositoryLocation_>
-            <value>http://models.geo.kgk-cgc.ch/</value>
-          </IliSite09.RepositoryLocation_>
-          <IliSite09.RepositoryLocation_>
-            <value>http://models.geo.admin.ch/</value>
+            <value>https://geo.so.ch/models<value>
           </IliSite09.RepositoryLocation_>
         </parentSite>
-        -->
       </IliSite09.SiteMetadata.Site>
     </IliSite09.SiteMetadata>
   </DATASECTION>
