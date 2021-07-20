@@ -35,27 +35,26 @@ jobs:
         run: |
           curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $DIGITALOCEAN_TOKEN" "https://api.digitalocean.com/v2/apps/a956ba1e-934d-4db9-a489-91e16ec59701/deployments"
         if: ${{ github.ref == 'refs/heads/main' }} 
-
-      # TODO: Sollte ebenfalle mit Gradle gemacht werden.
+      # TODO: Sollte ebenfalls mit Gradle gemacht werden.
       # - zweites build File?
       # - oder zumindest das Tagging
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ env.AWS_REGION }}
-      # - name: Login to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v1
-      # - name: Push Docker Image to Amazon ECR
-      #   env:
-      #     ECR_REGISTRY: 465066823493.dkr.ecr.eu-west-1.amazonaws.com
-      #     ECR_REPOSITORY: sogeo-interlis-repository
-      #   run: |
-      #     docker image tag edigonzales/sogeo-interlis-repository:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-      #     docker image tag edigonzales/sogeo-interlis-repository:1.0.$BUILD_NUMBER $ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER
-      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER
-      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-      #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER"
-      #   if: ${{ github.ref == 'refs/heads/main' }}  
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Push Docker Image to Amazon ECR
+        env:
+          ECR_REGISTRY: 465066823493.dkr.ecr.eu-west-1.amazonaws.com
+          ECR_REPOSITORY: sogeo-interlis-repository
+        run: |
+          docker image tag edigonzales/sogeo-interlis-repository:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker image tag edigonzales/sogeo-interlis-repository:1.0.$BUILD_NUMBER $ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:1.0.$BUILD_NUMBER"
+        if: ${{ github.ref == 'refs/heads/main' }}  
